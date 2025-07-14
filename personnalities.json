@@ -1,0 +1,287 @@
+[
+    {
+        "name": "lubrique",
+        "points": 25,
+        "bonus": [
+            {
+                "name": "intrigue",
+                "apttitudes": 2
+            }
+        ],
+        "incompatible": "chaste"
+    },
+    {
+        "name": "chaste",
+        "points": 20,
+        "bonus": [
+            {
+                "name": "erudition",
+                "apttitudes": 2
+            }
+        ],
+        "incompatible": "lubrique"
+    },
+    {
+        "name": "gourmand",
+        "points": 20,
+        "bonus": [
+            {
+                "name": "intendance",
+                "apttitudes": -2
+            }
+        ],
+        "incompatible": ""
+    },
+    {
+        "name": "tempéré",
+        "points": 40,
+        "bonus": [
+            {
+                "name": "intendance",
+                "apttitudes": 2
+            }
+        ],
+        "incompatible": ""
+    },
+    {
+        "name": "cupide",
+        "points": 30,
+        "bonus": [
+            {
+                "name": "diplomatie",
+                "apttitudes": -2
+            }
+        ],
+        "incompatible": ""
+    },
+    {
+        "name": "généreux",
+        "points": 20,
+        "bonus": [
+            {
+                "name": "diplomatie",
+                "apttitudes": 3
+            }
+        ],
+        "incompatible": ""
+    },
+    {
+        "name": "paresseux",
+        "points": -10,
+        "bonus": [
+            {
+                "name": "diplomatie",
+                "apttitudes": -1
+            },
+            {
+                "name": "intrigue",
+                "apttitudes": -1
+            },
+            {
+                "name": "intendance",
+                "apttitudes": -1
+            },
+            {
+                "name": "martialite",
+                "apttitudes": -1
+            },
+            {
+                "name": "erudition",
+                "apttitudes": -1
+            }
+        ],
+        "incompatible": ""
+    },
+    {
+        "name": "appliqué",
+        "points": 40,
+        "bonus": [
+            {
+                "name": "diplomatie",
+                "apttitudes": 2
+            },
+            {
+                "name": "intendance",
+                "apttitudes": 3
+            },
+            {
+                "name": "erudition",
+                "apttitudes": 3
+            }
+        ],
+        "incompatible": ""
+    },
+    {
+        "name": "colérique",
+        "points": 30,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "calme",
+        "points": 25,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "patient",
+        "points": 30,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "impatient",
+        "points": 25,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "arrogant",
+        "points": 20,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "humble",
+        "points": 20,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "fourbe",
+        "points": 30,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "honnête",
+        "points": 20,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "lache",
+        "points": -10,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "brave",
+        "points": 40,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "timide",
+        "points": -10,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "sociable",
+        "points": 30,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "ambitieux",
+        "points": 40,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "content",
+        "points": 20,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "partial",
+        "points": 30,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "juste",
+        "points": 40,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "cynique",
+        "points": 30,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "zélé",
+        "points": 30,
+        "bonus": [
+            {
+                "name": "martialite",
+                "apttitudes": 3
+            }
+        ],
+        "incompatible": ""
+    },
+    {
+        "name": "paranoïaque",
+        "points": -10,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "confiant",
+        "points": 10,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "compatissant",
+        "points": 10,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "sans coeur",
+        "points": 40,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "sadique",
+        "points": 40,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "entêté",
+        "points": 30,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "inconstant",
+        "points": 25,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "excentrique",
+        "points": 15,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "vindicatif",
+        "points": 30,
+        "bonus": [],
+        "incompatible": ""
+    },
+    {
+        "name": "indulgent",
+        "points": 25,
+        "bonus": [],
+        "incompatible": ""
+    }
+]
