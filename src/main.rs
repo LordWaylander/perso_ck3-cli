@@ -326,29 +326,8 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
     println!("INITALIZATION");
     println!("{:?}", statistiques);
 
-    for bonus in &education_personnage.bonus {
+    for bonus in education_personnage.bonus.clone() {
         statistiques.add_bonus_to_stats(bonus);
-        // match bonus.name.as_str() {
-        //     "intrigue" => {
-        //         statistiques.intrigue += bonus.apttitudes
-        //     },
-        //     "diplomatie" => {
-        //         statistiques.diplomatie += bonus.apttitudes
-        //     },
-        //     "martialite" => {
-        //         statistiques.martialite += bonus.apttitudes
-        //     },
-        //     "intendance" => {
-        //         statistiques.intendance += bonus.apttitudes
-        //     },
-        //     "erudition" => {
-        //         statistiques.erudition += bonus.apttitudes
-        //     },
-        //     "prouesse" => {
-        //         statistiques.prouesse += bonus.apttitudes
-        //     },
-        //     _ => panic!("erreur education")
-        // }
     }
 
     println!("BONUS EDUCATION");
@@ -357,27 +336,6 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
     for personality in personnality_personnage.clone() {
         for bonus in personality.bonus {
             statistiques.add_bonus_to_stats(bonus);
-            // match bonus.name.as_str() {
-            //     "intrigue" => {
-            //         statistiques.intrigue += bonus.apttitudes
-            //     },
-            //     "diplomatie" => {
-            //         statistiques.diplomatie += bonus.apttitudes
-            //     },
-            //     "martialite" => {
-            //         statistiques.martialite += bonus.apttitudes
-            //     },
-            //     "intendance" => {
-            //         statistiques.intendance += bonus.apttitudes
-            //     },
-            //     "erudition" => {
-            //         statistiques.erudition += bonus.apttitudes
-            //     },
-            //     "prouesse" => {
-            //         statistiques.prouesse += bonus.apttitudes
-            //     },
-            //     _ => panic!("erreur personnalité")
-            // }
         }
     }
 
@@ -400,7 +358,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         //60% de base d'obtenir +1 dans l'éducation choisie
         let percentage = rng.gen_range(0..=100);
 
-        if percentage >= 60 {
+        if percentage < 60 {
             let num = statistiques.incremente_stats(&education_personnage.name);
 
             //if (LIMIT_POINTS+num).lt(&400) {
