@@ -7,7 +7,7 @@ use rand::prelude::*;
 const EDUCATION_FILE: &str = "educations.json";
 const PERSONNALITIES_FILE: &str = "personnalities.json";
 const LIMIT_POINTS: i16 = 400;
-const CLI: bool = false;
+// const CLI: bool = false;
 
 #[derive(Debug, serde::Deserialize, Clone)]
 struct Education {
@@ -213,13 +213,14 @@ fn load_data() -> (Vec<Education>, Vec<Personality>) {
 fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage {
     let mut rng = rand::thread_rng();
     /*
-        67 car age départ = 25 ans
-        5*12 = 5 stats à 5 pts
-        + 6 = prouesse à 5 pts
+        25 ans = 67 pts
+        + 5 stats à 5 pts = 12 pts
+        + 6 prouesse à 5 pts
+        = 67 + 65 = 133
 
         oui c'est à améliorer selon les stats, etc...
     */
-    let mut points_personnage: i16 = 67 + 5*12+6; 
+    let mut points_personnage: i16 = 67 + 65; 
     let mut statistiques = Statistiques::new();
 
     let educations: Vec<Education> = datas.0;
@@ -255,7 +256,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
 
 
     // } else {
-        let percentage = rng.gen_range(0..=100);
+        let percentage = rng.gen_range(0..100);
 
         if percentage >= 0 && percentage < 10 {
             let very_good_education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level == 5).collect();
@@ -309,11 +310,16 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
 
     let mut personnality_personnage: Vec<Personality> = Vec::new();
 
+    println!("personality_bonus : ");
+    println!("{:?}", personality_bonus);
+    println!("personality_neutral : ");
+    println!("{:?}", personality_neutral);
+
     while personnality_personnage.len() < 3 {
         if personality_bonus.len() != 0 {
             let pers_index= rng.gen_range(0..personality_bonus.len());
 
-            // voir pour avir moins souvent le trait ambitieux
+            // voir pour avoir moins souvent le trait ambitieux ?
 
             personnality_personnage.push(personality_bonus[pers_index].clone());
             points_personnage += personality_bonus[pers_index].points;
@@ -377,7 +383,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         //60% de base d'obtenir +1 dans l'éducation choisie
         let percentage = rng.gen_range(0..100);
 
-        if percentage < 40 {
+        if percentage < 10 {
             let num = statistiques.incremente_stats(&education_personnage.name, Signe::ADD);
             // println!("stat augmentée = {}", education_personnage.name);
             // println!("num incremente_stats = {num}");
@@ -477,18 +483,5 @@ fn main() {
     println!("prouesse : {}", personnage.statistiques.prouesse);
 
     println!("points_totaux : {}", personnage.points_totaux);
-
-
-    // let mut rng = rand::thread_rng();
-    // let an_index = rng.gen_range(0..AN.len());
-
-
-
-    // println!("{:?}", datas.0);
-    // println!("{:?}", datas.1);
-
-
-
-
 
 }
