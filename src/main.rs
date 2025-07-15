@@ -23,7 +23,7 @@ struct Personality {
         name: String,
         points : i16,
         bonus: Vec<Bonus>,
-        incompatible: String
+        incompatible: Vec<String>
 }
 
 #[derive(Debug, serde::Deserialize, Clone, PartialEq)]
@@ -36,7 +36,31 @@ struct Bonus {
 struct Personnage {
     education: Education,
     personnality: Vec<Personality>,
+    statistiques: Statistiques,
     points_totaux: u16
+}
+
+#[derive(Debug)]
+struct Statistiques {
+    diplomatie: i8,
+    martialite: i8,
+    intendance: i8,
+    intrigue: i8,
+    erudition: i8
+
+}
+
+impl Statistiques {
+    fn new() -> Statistiques {
+        Statistiques {
+            // valeur de départ de tout personnage créé de base ds le jeu
+            diplomatie : 5,
+            martialite: 5,
+            intendance: 5,
+            intrigue: 5,
+            erudition: 5
+        }
+    }
 }
 
 fn load_data() -> (Vec<Education>, Vec<Personality>) {
@@ -72,6 +96,8 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) {
     let educations: Vec<Education> = datas.0;
     let personalities: Vec<Personality> =  datas.1;
 
+    /* Education -> ------------------------------------------------------------------------------ */
+
     let education_personnage: Education;
 
     if CLI {
@@ -101,10 +127,12 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) {
 
     } else {
         let educ_index= rng.gen_range(0..educations.len());
-        education_personnage = educations[0].clone();
+        education_personnage = educations[4].clone();
     }
 
     points_personnage += education_personnage.points as i16;
+
+    /* Personnality -> ------------------------------------------------------------------------------ */
 
     let mut personality_bonus: Vec<Personality> = Vec::new();
     let mut personality_neutral: Vec<Personality> = Vec::new();
@@ -133,78 +161,73 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) {
 
     let mut personnality_personnage: Vec<Personality> = Vec::new();
 
-    // println!("*******");
-    // println!("{:?}", personality_bonus);
-    // println!("######");
-    // println!("{:?}", personality_neutral);
-
-    // let mut compteur = 0;
-
     while personnality_personnage.len() < 3 {
-        // compteur+=1;
         if personality_bonus.len() != 0 {
             let pers_index= rng.gen_range(0..personality_bonus.len());
-
-            // println!("*******");
-            // println!("index {:?}", pers_index);
-            // println!("compteur {:?}", compteur);
-            // println!("{:?}", personality_bonus[pers_index]);
-            // println!("{:?}", personality_bonus[pers_index].points);
 
             personnality_personnage.push(personality_bonus[pers_index].clone());
             points_personnage += personality_bonus[pers_index].points;
 
-            if let Some(index) = personality_bonus.iter().position(|pers| pers.name == personality_bonus[pers_index].incompatible) {
-                personality_bonus.remove(index);
-            }
+            personality_bonus[pers_index].incompatible.clone().into_iter().for_each(
+                |value| {
+                    if let Some(index) = personality_bonus.iter().position(|pers| pers.name == value) {
+                        personality_bonus.remove(index);
+                    };
 
-            if let Some(index) = personality_neutral.iter().position(|pers| pers.name == personality_bonus[pers_index].incompatible) {
-                personality_neutral.remove(index);
-            }
-
-            
-
+                    if let Some(index) = personality_neutral.iter().position(|pers| pers.name == value) {
+                        personality_neutral.remove(index);
+                    };
+                }
+            );
 
             personality_bonus.remove(pers_index);
         } else if personality_neutral.len() != 0 {
             let pers_index= rng.gen_range(0..personality_neutral.len());
 
-            // println!("######");
-            // println!("index {:?}", pers_index);
-            // println!("compteur {:?}", compteur);
-            // println!("{:?}", personality_neutral[pers_index]);
-            // println!("{:?}", personality_neutral[pers_index].points);
-
             personnality_personnage.push(personality_neutral[pers_index].clone());
             points_personnage += personality_neutral[pers_index].points;
 
-            if let Some(index) = personality_bonus.iter().position(|pers| pers.name == personality_neutral[pers_index].incompatible) {
-                personality_bonus.remove(index);
-            }
+            personality_neutral[pers_index].incompatible.clone().into_iter().for_each(
+                |value| {
+                    if let Some(index) = personality_bonus.iter().position(|pers| pers.name == value) {
+                        personality_bonus.remove(index);
+                    };
 
-            if let Some(index) = personality_neutral.iter().position(|pers| pers.name == personality_neutral[pers_index].incompatible) {
-                personality_neutral.remove(index);
-            }
+                    if let Some(index) = personality_neutral.iter().position(|pers| pers.name == value) {
+                        personality_neutral.remove(index);
+                    };
+                }
+            );
 
             personality_neutral.remove(pers_index);
         }
-        
+    }   
 
+    /* Statistiques -> ------------------------------------------------------------------------------ */
+
+    let mut statistiques = Statistiques::new();
+
+    for bonus in &education_personnage.bonus {
+        match bonus.name.as_str() {
+            "intrigue" => {
+                statistiques.intrigue += bonus.apttitudes
+            },
+            "diplomatie" => {
+                statistiques.diplomatie += bonus.apttitudes
+            },
+            "martialite" => {
+                statistiques.martialite += bonus.apttitudes
+            },
+            "intendance" => {
+                statistiques.intendance += bonus.apttitudes
+            },
+            "erudition" => {
+                statistiques.erudition += bonus.apttitudes
+            },
+            _ => panic!("pas normal")
+        }
     }
 
-
-    
-    // println!("{:?}", education_personnage.name);
-    // println!("########");
-    // println!("{:?}", personality_bonus);
-    // println!("########");
-    // println!("{:?}", personality_neutral);
-
-
-    
-
-
-   
 
     // while points_personnage <  LIMIT_POINTS {
         
@@ -213,6 +236,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) {
     let perso: Personnage = Personnage {
         education: education_personnage,
         personnality: personnality_personnage,
+        statistiques,
         points_totaux: points_personnage as u16
     };
 
