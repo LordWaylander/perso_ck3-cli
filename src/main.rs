@@ -230,6 +230,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
     //     let educ_wanted = "erudition"; // = value cli
 
 
+    // nan mais.... faut prendre un filter que je suis con x)
     //     let mut hash_education = HashMap::new();
     //     for e in educations.clone() {
     //         hash_education.insert(e.name.clone(), e);
@@ -361,8 +362,8 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
 
     
 
-    println!("INITALIZATION");
-    println!("{:?}", statistiques);
+    // println!("INITALIZATION");
+    // println!("{:?}", statistiques);
 
     let stats = [
         "intrigue",
@@ -424,8 +425,8 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         }
     }
 
-    println!("INCREMENTE STATS");
-    println!("{:?}", statistiques);
+    // println!("INCREMENTE STATS");
+    // println!("{:?}", statistiques);
 
     for personality in personnality_personnage.clone() {
         for bonus in personality.bonus {
@@ -433,15 +434,15 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         }
     }
 
-    println!("BONUS PERSONNALITE");
-    println!("{:?}", statistiques);
+    // println!("BONUS PERSONNALITE");
+    // println!("{:?}", statistiques);
 
     for bonus in education_personnage.bonus.clone() {
         statistiques.add_bonus_to_stats(bonus);
     }
 
-    println!("BONUS EDUCATION");
-    println!("{:?}", statistiques);
+    // println!("BONUS EDUCATION");
+    // println!("{:?}", statistiques);
 
     let perso: Personnage = Personnage {
         education: education_personnage,
