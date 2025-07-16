@@ -39,9 +39,10 @@ struct Personnage {
     points_totaux: u16
 }
 
+#[derive(PartialEq)]
 enum Signe {
-    ADD,
-    SUB
+    Increment,
+    Decrement
 }
 
 #[derive(Debug)]
@@ -67,30 +68,31 @@ impl Statistiques {
         }
     }
 
-    fn incremente_stats(&mut self, stat_name: &str, signe: Signe) -> i16 {
-       let val = match stat_name {
+    fn incremente_or_decremente_stats(&mut self, stat_name: &str, signe: Signe) -> i16 {
+        let modifier = if signe == Signe::Decrement {-1} else {1};
+        let val = match stat_name {
             "intrigue" => {
-                self.intrigue += 1;
+                self.intrigue = (self.intrigue + modifier).max(0);
                 self.intrigue
             },
             "diplomatie" => {
-                self.diplomatie += 1;
+                self.diplomatie = (self.diplomatie + modifier).max(0);
                 self.diplomatie
             },
             "martialite" => {
-                self.martialite += 1;
+                self.martialite = (self.martialite + modifier).max(0);
                 self.martialite
             },
             "intendance" => {
-                self.intendance += 1;
+                self.intendance = (self.intendance + modifier).max(0);
                 self.intendance
             },
             "erudition" => {
-                self.erudition += 1;
+                self.erudition = (self.erudition + modifier).max(0);
                 self.erudition
             },
             "prouesse" => {
-                self.prouesse += 1;
+                self.prouesse = (self.prouesse + modifier).max(0);
                 self.prouesse
             },
             _ => panic!("erreur incremente_statst, bonus_name = {}",stat_name)
@@ -103,53 +105,6 @@ impl Statistiques {
         }
 
     }
-    fn decremente_stats(&mut self, stat_name: &str, signe: Signe) -> i16 {
-        let val = match stat_name {
-             "intrigue" => {
-                if self.intrigue > 0 {
-                    self.intrigue -= 1;
-                } 
-                self.intrigue
-             },
-             "diplomatie" => {
-                if self.diplomatie > 0 {
-                    self.diplomatie -= 1;
-                } 
-                 self.diplomatie
-             },
-             "martialite" => {
-                if self.martialite > 0 {
-                    self.martialite -= 1;
-                }
-                 self.martialite
-             },
-             "intendance" => {
-                if self.intendance > 0 {
-                    self.intendance -= 1;
-                }
-                 self.intendance
-             },
-             "erudition" => {
-                if self.erudition > 0 {
-                    self.erudition -= 1;
-                }
-                 self.erudition
-             },
-             "prouesse" => {
-                self.prouesse += 1;
-                self.prouesse
-            },
-             _ => panic!("erreur decremente_statst, bonus_name = {}",stat_name)
-         };
-
-        if stat_name == "prouesse" {
-        Statistiques::val_prouesse(val).into()
-        } else {
-        Statistiques::val_stats(val).into()
-        }
-        
-
-     }
 
     fn val_stats(val : i8) -> i8 {
         match val {
@@ -172,6 +127,36 @@ impl Statistiques {
             _ => 0
        }
     } 
+
+    fn calcule_cout_increment(&self, stat_name: &str) -> i16 {
+        let val = match stat_name {
+            "intrigue" => {
+                self.intrigue
+            },
+            "diplomatie" => {
+                self.diplomatie
+            },
+            "martialite" => {
+                self.martialite
+            },
+            "intendance" => {
+                self.intendance
+            },
+            "erudition" => {
+                self.erudition
+            },
+            "prouesse" => {
+                self.prouesse
+            },
+            _ => panic!("erreur calcule_cout_increment, bonus_name = {}",stat_name)
+        };
+
+        if stat_name == "prouesse" {
+            Statistiques::val_prouesse(val+1).into()
+        } else {
+            Statistiques::val_stats(val+1).into()
+        }
+    }
 
     fn add_bonus_to_stats(&mut self, bonus: Bonus) {
         match bonus.name.as_str() {
@@ -310,6 +295,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
 
     let mut personnality_personnage: Vec<Personality> = Vec::new();
 
+    println!("*****BEFORE*****");
     println!("personality_bonus : ");
     println!("{:?}", personality_bonus);
     println!("personality_neutral : ");
@@ -320,6 +306,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
             let pers_index= rng.gen_range(0..personality_bonus.len());
 
             // voir pour avoir moins souvent le trait ambitieux ?
+            // parfois y'a deux trait identiques qui sortent comme si le remove foirais
 
             personnality_personnage.push(personality_bonus[pers_index].clone());
             points_personnage += personality_bonus[pers_index].points;
@@ -358,6 +345,12 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
             personality_neutral.remove(pers_index);
         }
     }   
+
+    println!("*****AFTER*****");
+    println!("personality_bonus : ");
+    println!("{:?}", personality_bonus);
+    println!("personality_neutral : ");
+    println!("{:?}", personality_neutral);
     // println!("pts APRES SELECT PERSONNALITE = {points_personnage}");
 
     /* Statistiques -> ------------------------------------------------------------------------------ */
@@ -378,58 +371,56 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
 
     let stats_filter: Vec<&str> = stats.clone().into_iter().filter(|name|*name != education_personnage.name).collect();
 
+    /*
+        C'est pas parfait, exemple :
+         *** statistiques ***
+            diplomatie : 6
+            martialite : 7
+            intendance : 20
+            intrigue : 9
+            erudition : 11
+            prouesse : 12
+            points_totaux : 390
+        on pourrait augmenter la diplomatie de +2 pour avoir 398 pts
+        mais en dehors de ça, ça fait le taf
+    */
+
     while points_personnage <  LIMIT_POINTS {
         
-        //60% de base d'obtenir +1 dans l'éducation choisie
+        //10% de base d'obtenir +1 dans l'éducation choisie
         let percentage = rng.gen_range(0..100);
 
-        if percentage < 10 {
-            let num = statistiques.incremente_stats(&education_personnage.name, Signe::ADD);
-            // println!("stat augmentée = {}", education_personnage.name);
-            // println!("num incremente_stats = {num}");
-            // println!("points_personnage += num = {:?}", points_personnage+num);
-
-            //if (LIMIT_POINTS+num).lt(&400) {
-                points_personnage += num
-            //}
-
+        let stat_name = if percentage < 10 {
             /*
-                Si martialité, 80% augmenter martialité et 20% prouesse ?
-                sinon cf au dessus ?
+                Si martialité, 80% de chances augmenter martialité et 20% prouesse ?
             */
-            
+
+            if education_personnage.name == "martialite" {
+                if rng.gen_range(0..100) < 80 {
+                    &education_personnage.name
+                } else {
+                    "prouesse"
+                }
+            } else {
+                &education_personnage.name
+            }
 
         } else {
             let index = rng.gen_range(0..stats_filter.len());
-            let education = stats_filter[index];
+            stats_filter[index]
+        };
 
-            let num = statistiques.incremente_stats(&education, Signe::ADD);
-
-            // println!("stat augmentée = {education}");
-            // println!("num incremente_stats = {num}");
-            // println!("points_personnage += num = {:?}", points_personnage + num);
-
-            //if (LIMIT_POINTS+num).lt(&400) {
-                points_personnage += num
-            //}
+        let cout = statistiques.calcule_cout_increment(stat_name);
+       
+        if points_personnage+cout <= LIMIT_POINTS {
+            let num = statistiques.incremente_or_decremente_stats(stat_name, Signe::Increment);
+            points_personnage += num
+        } else {
+            break;
         }
     }
 
     println!("INCREMENTE STATS");
-    println!("{:?}", statistiques);
-
-
-    // je trouve pas mieux que de reboucler car avec le if (LIMIT_POINTS+num).lt(&400) je tombe sur un overflow
-    while points_personnage >  LIMIT_POINTS {
-        let index = rng.gen_range(0..educations.len());
-        let education = educations[index].name.clone();
-
-        let num = statistiques.decremente_stats(&education, Signe::SUB);
-        // println!("points_personnage -= num = {:?}", points_personnage - num);
-        points_personnage -= num
-    }
-
-    println!("DECREMENTE STATS");
     println!("{:?}", statistiques);
 
     for personality in personnality_personnage.clone() {
