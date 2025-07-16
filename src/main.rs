@@ -421,6 +421,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
             let num = statistiques.incremente_or_decremente_stats(stat_name, Signe::Increment);
             points_personnage += num
         } else {
+            // todo -> si ça tombe ici parcourir stats_filter dans l'ordre si aucun passe break
             break;
         }
     }
