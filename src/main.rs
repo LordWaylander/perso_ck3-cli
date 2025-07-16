@@ -274,15 +274,13 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         let mut match_no_bonus_education = false;
 
         for bonus in personnality.bonus.iter() {
-            if bonus.apttitudes > 0 {
-                if education_personnage.name == "martialite" && (bonus.name == education_personnage.name || bonus.name == "prouesse") {
-                    // car faut prendre la prouesse aussi un seigneur de guerre qui sait pas se battre il est inutile
-                    match_bonus_education = true;
-                } else if bonus.name == education_personnage.name {
-                    match_bonus_education = true;
-                } else {
-                    match_no_bonus_education = true;
-                }
+            if education_personnage.name == "martialite" && (bonus.name == education_personnage.name || bonus.name == "prouesse") {
+                // car faut prendre la prouesse aussi un seigneur de guerre qui sait pas se battre il est inutile
+                match_bonus_education = true;
+            } else if bonus.name == education_personnage.name {
+                match_bonus_education = true;
+            } else {
+                match_no_bonus_education = true;
             }
         }
 
@@ -295,23 +293,31 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
 
     let mut personnality_personnage: Vec<Personality> = Vec::new();
 
-    println!("*****BEFORE*****");
-    println!("personality_bonus : ");
-    println!("{:?}", personality_bonus);
-    println!("personality_neutral : ");
-    println!("{:?}", personality_neutral);
+    // println!("*****BEFORE*****");
+    // println!("personality_bonus : ");
+    // println!("{:?}", personality_bonus);
+    // println!("personality_neutral : ");
+    // println!("{:?}", personality_neutral);
 
     while personnality_personnage.len() < 3 {
-        if personality_bonus.len() != 0 {
+        let percentage= rng.gen_range(0..100);
+        // 60% de chances d'obtenir une personnalité qui correspond à l'éducation
+        if percentage < 60 {
             let pers_index= rng.gen_range(0..personality_bonus.len());
 
             // voir pour avoir moins souvent le trait ambitieux ?
-            // parfois y'a deux trait identiques qui sortent comme si le remove foirais
+            // parfois y'a deux trait identiques qui sortent comme si le remove foirais MAIS il foire pas
 
             personnality_personnage.push(personality_bonus[pers_index].clone());
             points_personnage += personality_bonus[pers_index].points;
 
-            personality_bonus[pers_index].incompatible.clone().into_iter().for_each(
+            // println!("CHOIX : {:?}", personality_bonus[pers_index]);
+            // println!("pers_index : {pers_index}");
+
+            let traits_incompatibles = personality_bonus[pers_index].incompatible.clone();
+            personality_bonus.remove(pers_index);
+
+            traits_incompatibles.into_iter().for_each(
                 |value| {
                     if let Some(index) = personality_bonus.iter().position(|pers| pers.name == value) {
                         personality_bonus.remove(index);
@@ -322,15 +328,16 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
                     };
                 }
             );
-
-            personality_bonus.remove(pers_index);
-        } else if personality_neutral.len() != 0 {
+        } else {
             let pers_index= rng.gen_range(0..personality_neutral.len());
 
             personnality_personnage.push(personality_neutral[pers_index].clone());
             points_personnage += personality_neutral[pers_index].points;
 
-            personality_neutral[pers_index].incompatible.clone().into_iter().for_each(
+            let traits_incompatibles = personality_neutral[pers_index].incompatible.clone();
+            personality_neutral.remove(pers_index);
+
+            traits_incompatibles.into_iter().for_each(
                 |value| {
                     if let Some(index) = personality_bonus.iter().position(|pers| pers.name == value) {
                         personality_bonus.remove(index);
@@ -341,17 +348,14 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
                     };
                 }
             );
-
-            personality_neutral.remove(pers_index);
         }
     }   
 
-    println!("*****AFTER*****");
-    println!("personality_bonus : ");
-    println!("{:?}", personality_bonus);
-    println!("personality_neutral : ");
-    println!("{:?}", personality_neutral);
-    // println!("pts APRES SELECT PERSONNALITE = {points_personnage}");
+    // println!("*****AFTER*****");
+    // println!("personality_bonus : ");
+    // println!("{:?}", personality_bonus);
+    // println!("personality_neutral : ");
+    // println!("{:?}", personality_neutral);
 
     /* Statistiques -> ------------------------------------------------------------------------------ */
 
