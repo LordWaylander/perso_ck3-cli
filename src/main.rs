@@ -1,13 +1,10 @@
-// use std::collections::HashMap;
 use std::fs::File;
 
 use rand::prelude::*;
 
-
-const EDUCATION_FILE: &str = "educations.json";
-const PERSONNALITIES_FILE: &str = "personnalities.json";
+const EDUCATION_FILE: &str = "./ressources/educations.json";
+const PERSONNALITIES_FILE: &str = "./ressources/personnalities.json";
 const LIMIT_POINTS: i16 = 400;
-// const CLI: bool = false;
 
 #[derive(Debug, serde::Deserialize, Clone)]
 struct Education {
@@ -47,24 +44,39 @@ enum Signe {
 
 #[derive(Debug)]
 struct Statistiques {
-    diplomatie: i8,
-    martialite: i8,
-    intendance: i8,
-    intrigue: i8,
-    erudition: i8,
-    prouesse: i8
+    diplomatie: Statistique,
+    martialite: Statistique,
+    intendance: Statistique,
+    intrigue: Statistique,
+    erudition: Statistique,
+    prouesse: Statistique
+}
+
+#[derive(Debug, Clone)]
+struct Statistique {
+    base: i8,
+    bonus: i8
+}
+
+impl Statistique {
+    fn new() -> Statistique {
+        Statistique {
+            // valeur de départ de tout personnage créé de base ds le jeu
+            base: 5,
+            bonus: 0
+        }
+    }
 }
 
 impl Statistiques {
     fn new() -> Statistiques {
         Statistiques {
-            // valeur de départ de tout personnage créé de base ds le jeu
-            diplomatie : 5,
-            martialite: 5,
-            intendance: 5,
-            intrigue: 5,
-            erudition: 5,
-            prouesse: 5
+            diplomatie : Statistique::new(),
+            martialite: Statistique::new(),
+            intendance: Statistique::new(),
+            intrigue: Statistique::new(),
+            erudition: Statistique::new(),
+            prouesse: Statistique::new()
         }
     }
 
@@ -72,28 +84,28 @@ impl Statistiques {
         let modifier = if signe == Signe::Decrement {-1} else {1};
         let val = match stat_name {
             "intrigue" => {
-                self.intrigue = (self.intrigue + modifier).max(0);
-                self.intrigue
+                self.intrigue.base = (self.intrigue.base + modifier).max(0);
+                self.intrigue.base
             },
             "diplomatie" => {
-                self.diplomatie = (self.diplomatie + modifier).max(0);
-                self.diplomatie
+                self.diplomatie.base = (self.diplomatie.base + modifier).max(0);
+                self.diplomatie.base
             },
             "martialite" => {
-                self.martialite = (self.martialite + modifier).max(0);
-                self.martialite
+                self.martialite.base = (self.martialite.base + modifier).max(0);
+                self.martialite.base
             },
             "intendance" => {
-                self.intendance = (self.intendance + modifier).max(0);
-                self.intendance
+                self.intendance.base = (self.intendance.base + modifier).max(0);
+                self.intendance.base
             },
             "erudition" => {
-                self.erudition = (self.erudition + modifier).max(0);
-                self.erudition
+                self.erudition.base = (self.erudition.base + modifier).max(0);
+                self.erudition.base
             },
             "prouesse" => {
-                self.prouesse = (self.prouesse + modifier).max(0);
-                self.prouesse
+                self.prouesse.base = (self.prouesse.base + modifier).max(0);
+                self.prouesse.base
             },
             _ => panic!("erreur incremente_statst, bonus_name = {}",stat_name)
         };
@@ -131,22 +143,22 @@ impl Statistiques {
     fn calcule_cout_increment(&self, stat_name: &str) -> i16 {
         let val = match stat_name {
             "intrigue" => {
-                self.intrigue
+                self.intrigue.base
             },
             "diplomatie" => {
-                self.diplomatie
+                self.diplomatie.base
             },
             "martialite" => {
-                self.martialite
+                self.martialite.base
             },
             "intendance" => {
-                self.intendance
+                self.intendance.base
             },
             "erudition" => {
-                self.erudition
+                self.erudition.base
             },
             "prouesse" => {
-                self.prouesse
+                self.prouesse.base
             },
             _ => panic!("erreur calcule_cout_increment, bonus_name = {}",stat_name)
         };
@@ -161,22 +173,22 @@ impl Statistiques {
     fn add_bonus_to_stats(&mut self, bonus: Bonus) {
         match bonus.name.as_str() {
             "intrigue" => {
-                self.intrigue += bonus.apttitudes
+                self.intrigue.bonus += bonus.apttitudes
             },
             "diplomatie" => {
-                self.diplomatie += bonus.apttitudes
+                self.diplomatie.bonus += bonus.apttitudes
             },
             "martialite" => {
-                self.martialite += bonus.apttitudes
+                self.martialite.bonus += bonus.apttitudes
             },
             "intendance" => {
-                self.intendance += bonus.apttitudes
+                self.intendance.bonus += bonus.apttitudes
             },
             "erudition" => {
-                self.erudition += bonus.apttitudes
+                self.erudition.bonus += bonus.apttitudes
             },
             "prouesse" => {
-                self.prouesse += bonus.apttitudes
+                self.prouesse.bonus += bonus.apttitudes
             },
             _ => panic!("erreur personnalité, bonus_name = {}",bonus.name)
         }
@@ -215,53 +227,27 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
 
     let education_personnage: Education;
 
-    // if CLI {
+    let percentage = rng.gen_range(0..100);
 
-    //     // c'est pas en place mais c'est en place
-
-    //     let educations_cli = [
-    //         "intrigue",
-    //         "diplomatie",
-    //         "martialite",
-    //         "intendance",
-    //         "erudition"
-    //     ];
-
-    //     let educ_wanted = "erudition"; // = value cli
-
-
-    // nan mais.... faut prendre un filter que je suis con x)
-    //     let mut hash_education = HashMap::new();
-    //     for e in educations.clone() {
-    //         hash_education.insert(e.name.clone(), e);
-    //     }
-
-    //     let education =  hash_education.get(educ_wanted).unwrap();
-
-    //     education_personnage = education.clone();
-
-
-    // } else {
-        let percentage = rng.gen_range(0..100);
-
-        if percentage >= 0 && percentage < 10 {
-            let very_good_education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level == 5).collect();
-            let educ_index= rng.gen_range(0..very_good_education.len());
-            education_personnage = very_good_education[educ_index].clone();
-        } else if percentage >= 10 && percentage < 70 {
-            
-            let good_education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level >= 3 && educ.level < 5).collect();
-            let educ_index= rng.gen_range(0..good_education.len());
-            education_personnage = good_education[educ_index].clone();
-        } else {
-            let education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level < 3).collect();
-            let educ_index= rng.gen_range(0..education.len());
-            education_personnage = education[educ_index].clone();
-        }
+    if percentage >= 0 && percentage < 10 {
+        let very_good_education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level == 5).collect();
+        let educ_index= rng.gen_range(0..very_good_education.len());
+        education_personnage = very_good_education[educ_index].clone();
+    } else if percentage >= 10 && percentage < 70 {
         
-    // }
+        let good_education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level >= 3 && educ.level < 5).collect();
+        let educ_index= rng.gen_range(0..good_education.len());
+        education_personnage = good_education[educ_index].clone();
+    } else {
+        let education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level < 3).collect();
+        let educ_index= rng.gen_range(0..education.len());
+        education_personnage = education[educ_index].clone();
+    }
 
     points_personnage += education_personnage.points as i16;
+    for bonus in education_personnage.bonus.clone() {
+        statistiques.add_bonus_to_stats(bonus);
+    }
     // println!("pts APRES SELECT EDUCATION = {points_personnage}");
 
     /* Personnality -> ------------------------------------------------------------------------------ */
@@ -352,6 +338,12 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         }
     }   
 
+    for personality in personnality_personnage.clone() {
+        for bonus in personality.bonus {
+            statistiques.add_bonus_to_stats(bonus);
+        }
+    }
+
     // println!("*****AFTER*****");
     // println!("personality_bonus : ");
     // println!("{:?}", personality_bonus);
@@ -359,8 +351,6 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
     // println!("{:?}", personality_neutral);
 
     /* Statistiques -> ------------------------------------------------------------------------------ */
-
-    
 
     // println!("INITALIZATION");
     // println!("{:?}", statistiques);
@@ -420,30 +410,30 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         if points_personnage+cout <= LIMIT_POINTS {
             let num = statistiques.incremente_or_decremente_stats(stat_name, Signe::Increment);
             points_personnage += num
+        } else if points_personnage >= 390 && points_personnage < LIMIT_POINTS-1{
+            // en gros si il reste entre 10 et 2 pts a attribuer autant essayer de rentabiliser un max
+            // mais j'ai pas mieux que ce truc pour l'instant
+            let mut bool_break = false;
+            
+            for stat_name in stats {
+                let cout = statistiques.calcule_cout_increment(stat_name);
+                if points_personnage+cout <= LIMIT_POINTS {
+                    let num = statistiques.incremente_or_decremente_stats(stat_name, Signe::Increment);
+                    points_personnage += num;
+                    bool_break = false;
+                } else {
+                    bool_break = true;
+                }
+            }
+
+            if bool_break {
+                break;
+            }
+
         } else {
-            // todo -> si ça tombe ici parcourir stats_filter dans l'ordre si aucun passe break
             break;
         }
     }
-
-    // println!("INCREMENTE STATS");
-    // println!("{:?}", statistiques);
-
-    for personality in personnality_personnage.clone() {
-        for bonus in personality.bonus {
-            statistiques.add_bonus_to_stats(bonus);
-        }
-    }
-
-    // println!("BONUS PERSONNALITE");
-    // println!("{:?}", statistiques);
-
-    for bonus in education_personnage.bonus.clone() {
-        statistiques.add_bonus_to_stats(bonus);
-    }
-
-    // println!("BONUS EDUCATION");
-    // println!("{:?}", statistiques);
 
     let perso: Personnage = Personnage {
         education: education_personnage,
@@ -472,12 +462,12 @@ fn main() {
     }
     
     println!(" *** statistiques ***");
-    println!("diplomatie : {}", personnage.statistiques.diplomatie);
-    println!("martialite : {}", personnage.statistiques.martialite);
-    println!("intendance : {}", personnage.statistiques.intendance);
-    println!("intrigue : {}", personnage.statistiques.intrigue);
-    println!("erudition : {}", personnage.statistiques.erudition);
-    println!("prouesse : {}", personnage.statistiques.prouesse);
+    println!("diplomatie : {}", personnage.statistiques.diplomatie.base + personnage.statistiques.diplomatie.bonus);
+    println!("martialite : {}", personnage.statistiques.martialite.base + personnage.statistiques.martialite.bonus);
+    println!("intendance : {}", personnage.statistiques.intendance.base + personnage.statistiques.intendance.bonus);
+    println!("intrigue : {}", personnage.statistiques.intrigue.base + personnage.statistiques.intrigue.bonus);
+    println!("erudition : {}", personnage.statistiques.erudition.base + personnage.statistiques.erudition.bonus);
+    println!("prouesse : {}", personnage.statistiques.prouesse.base + personnage.statistiques.prouesse.bonus);
 
     println!("points_totaux : {}", personnage.points_totaux);
 
