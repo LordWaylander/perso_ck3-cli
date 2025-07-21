@@ -2,5 +2,9 @@
 ## RANDOM 100%
 
 @todo : 
-- cli
-    note a moi même : gui cli - > https://ratatui.rs/tutorials/hello-ratatui/
+- gui
+    note a moi même : "gui" - > [https://ratatui.rs/tutorials/hello-ratatui/](ratatui)
+  - select age (calcul ?)
+  - points max
+  - personalité ?
+  - affinage ?
