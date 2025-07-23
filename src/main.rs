@@ -1,4 +1,5 @@
 use std::fs::File;
+use std::collections::HashMap;
 
 use rand::prelude::*;
 
@@ -34,6 +35,20 @@ struct Personnage {
     personnality: Vec<Personality>,
     statistiques: Statistiques,
     points_totaux: u16
+}
+
+struct Age(i32);
+
+impl Age {
+    fn get_score_age(self) -> i32 {
+        match self.0 {
+            0 => 0,
+            1 => 2,
+            2 => 4,
+            3 => 6,
+            _ => 67
+        }
+    }
 }
 
 #[derive(PartialEq)]
@@ -233,7 +248,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         let very_good_education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level == 5).collect();
         let educ_index= rng.gen_range(0..very_good_education.len());
         education_personnage = very_good_education[educ_index].clone();
-    } else if percentage >= 10 && percentage < 70 {
+    } else if percentage >= 10 && percentage < 90 {
         
         let good_education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level >= 3 && educ.level < 5).collect();
         let educ_index= rng.gen_range(0..good_education.len());
@@ -261,10 +276,10 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         let mut match_no_bonus_education = false;
 
         for bonus in personnality.bonus.iter() {
-            if education_personnage.name == "martialite" && (bonus.name == education_personnage.name || bonus.name == "prouesse") {
+            if education_personnage.name == "martialite" && (bonus.name == education_personnage.name || bonus.name == "prouesse") && bonus.apttitudes > 0 {
                 // car faut prendre la prouesse aussi un seigneur de guerre qui sait pas se battre il est inutile
                 match_bonus_education = true;
-            } else if bonus.name == education_personnage.name {
+            } else if bonus.name == education_personnage.name && bonus.apttitudes > 0 {
                 match_bonus_education = true;
             } else {
                 match_no_bonus_education = true;
@@ -277,6 +292,10 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
             personality_neutral.push(personnality);
         }
     }
+
+    // println!("{:?}", personality_bonus);
+    // println!("*************************");
+    // println!("{:?}", personality_neutral);
 
     let mut personnality_personnage: Vec<Personality> = Vec::new();
 
