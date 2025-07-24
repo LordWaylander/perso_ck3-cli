@@ -21,11 +21,25 @@ fn load_data() -> (Vec<Education>, Vec<Personality>) {
     (educations, personnalities)
 }
 
+fn remove_personnality(traits_incompatibles: Vec<String>, personality_bonus: &mut Vec<Personality>, personality_neutral: &mut Vec<Personality>) {
+    traits_incompatibles.into_iter().for_each(
+        |value| {
+            if let Some(index) = personality_bonus.iter().position(|pers| pers.name == value) {
+                personality_bonus.remove(index);
+            };
+
+            if let Some(index) = personality_neutral.iter().position(|pers| pers.name == value) {
+                personality_neutral.remove(index);
+            };
+        }
+    );
+}
+
 fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage {
     let mut rng = rand::rng();
     let args = Args::parse();
 
-    dbg!(&args);
+    // dbg!(&args);
     /*
         @todo
         25 ans = 67 pts
@@ -140,9 +154,9 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         }
     }
 
-    // dbg!(personality_bonus);
+    // dbg!(&personality_bonus);
     // dbg!("*************************");
-    // dbg!(personality_neutral);
+    // dbg!(&personality_neutral);
 
     let mut personnality_personnage: Vec<Personality> = Vec::new();
 
@@ -167,20 +181,10 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
             // dbg!("CHOIX : {:?}", personality_bonus[pers_index]);
             // dbg!("pers_index : {pers_index}");
 
-            let traits_incompatibles = personality_bonus[pers_index].incompatible.clone();
+            let traits_incompatibles: Vec<String> = personality_bonus[pers_index].incompatible.clone();
             personality_bonus.remove(pers_index);
 
-            traits_incompatibles.into_iter().for_each(
-                |value| {
-                    if let Some(index) = personality_bonus.iter().position(|pers| pers.name == value) {
-                        personality_bonus.remove(index);
-                    };
-
-                    if let Some(index) = personality_neutral.iter().position(|pers| pers.name == value) {
-                        personality_neutral.remove(index);
-                    };
-                }
-            );
+            remove_personnality(traits_incompatibles, &mut personality_bonus, &mut personality_neutral);
         } else {
             let pers_index= rng.random_range(0..personality_neutral.len());
 
@@ -190,17 +194,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
             let traits_incompatibles = personality_neutral[pers_index].incompatible.clone();
             personality_neutral.remove(pers_index);
 
-            traits_incompatibles.into_iter().for_each(
-                |value| {
-                    if let Some(index) = personality_bonus.iter().position(|pers| pers.name == value) {
-                        personality_bonus.remove(index);
-                    };
-
-                    if let Some(index) = personality_neutral.iter().position(|pers| pers.name == value) {
-                        personality_neutral.remove(index);
-                    };
-                }
-            );
+            remove_personnality(traits_incompatibles, &mut personality_bonus, &mut personality_neutral);
         }
     }   
 
@@ -212,9 +206,9 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
 
     // dbg!("*****AFTER*****");
     // dbg!("personality_bonus : ");
-    // dbg!("{:?}", personality_bonus);
+    // dbg!(&personality_bonus);
     // dbg!("personality_neutral : ");
-    // dbg!("{:?}", personality_neutral);
+    // dbg!(&personality_neutral);
 
     /* Statistiques -> ------------------------------------------------------------------------------ */
 
@@ -313,6 +307,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
 
 }
 
+use std::io;
 fn main() {
 
     let datas: (Vec<Education>, Vec<Personality>) = load_data();

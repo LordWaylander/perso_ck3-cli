@@ -3,7 +3,7 @@ use std::fmt;
 
 
 /// Simple program to generate a ck3 player
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Default)]
 #[command(version, about, long_about = None)]
 pub struct Args {
     /// Possible values : [martialite, diplomatie, intrigue, intendance, erudition]
@@ -16,7 +16,7 @@ pub struct Args {
     pub age: Option<i8>
 }
 
-#[derive(Debug, serde::Deserialize, Clone, PartialEq)]
+#[derive(Debug, serde::Deserialize, Clone, PartialEq, Default)]
 pub struct Education {
     pub  name: String,
     pub level: u8,
@@ -38,7 +38,7 @@ pub struct Bonus {
     pub apttitudes: i8
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Personnage {
     pub age: Age,
     pub education: Education,
@@ -47,7 +47,7 @@ pub struct Personnage {
     pub points_totaux: u16
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Age(pub i8);
 
 impl Age {
@@ -80,7 +80,7 @@ pub enum Signe {
     Decrement
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Statistiques {
     pub diplomatie: Statistique,
     pub martialite: Statistique,
@@ -90,7 +90,7 @@ pub struct Statistiques {
     pub prouesse: Statistique
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Statistique {
     pub base: i8,
     pub bonus: i8
