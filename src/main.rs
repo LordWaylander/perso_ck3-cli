@@ -1,214 +1,13 @@
 use std::fs::File;
-use std::collections::HashMap;
+use clap::Parser;
+mod structs;
+use structs::*;
 
 use rand::prelude::*;
 
 const EDUCATION_FILE: &str = "./ressources/educations.json";
 const PERSONNALITIES_FILE: &str = "./ressources/personnalities.json";
-const LIMIT_POINTS: i16 = 400;
-
-#[derive(Debug, serde::Deserialize, Clone)]
-struct Education {
-        name: String,
-        level: u8,
-        points : u16,
-        bonus: Vec<Bonus>,
-}
-
-#[derive(Debug, serde::Deserialize, Clone)]
-struct Personality {
-        name: String,
-        points : i16,
-        bonus: Vec<Bonus>,
-        incompatible: Vec<String>
-}
-
-#[derive(Debug, serde::Deserialize, Clone, PartialEq)]
-struct Bonus {
-    name: String,
-    apttitudes: i8
-}
-
-#[derive(Debug)]
-struct Personnage {
-    education: Education,
-    personnality: Vec<Personality>,
-    statistiques: Statistiques,
-    points_totaux: u16
-}
-
-struct Age(i32);
-
-impl Age {
-    fn get_score_age(self) -> i32 {
-        match self.0 {
-            0 => 0,
-            1 => 2,
-            2 => 4,
-            3 => 6,
-            _ => 67
-        }
-    }
-}
-
-#[derive(PartialEq)]
-enum Signe {
-    Increment,
-    Decrement
-}
-
-#[derive(Debug)]
-struct Statistiques {
-    diplomatie: Statistique,
-    martialite: Statistique,
-    intendance: Statistique,
-    intrigue: Statistique,
-    erudition: Statistique,
-    prouesse: Statistique
-}
-
-#[derive(Debug, Clone)]
-struct Statistique {
-    base: i8,
-    bonus: i8
-}
-
-impl Statistique {
-    fn new() -> Statistique {
-        Statistique {
-            // valeur de départ de tout personnage créé de base ds le jeu
-            base: 5,
-            bonus: 0
-        }
-    }
-}
-
-impl Statistiques {
-    fn new() -> Statistiques {
-        Statistiques {
-            diplomatie : Statistique::new(),
-            martialite: Statistique::new(),
-            intendance: Statistique::new(),
-            intrigue: Statistique::new(),
-            erudition: Statistique::new(),
-            prouesse: Statistique::new()
-        }
-    }
-
-    fn incremente_or_decremente_stats(&mut self, stat_name: &str, signe: Signe) -> i16 {
-        let modifier = if signe == Signe::Decrement {-1} else {1};
-        let val = match stat_name {
-            "intrigue" => {
-                self.intrigue.base = (self.intrigue.base + modifier).max(0);
-                self.intrigue.base
-            },
-            "diplomatie" => {
-                self.diplomatie.base = (self.diplomatie.base + modifier).max(0);
-                self.diplomatie.base
-            },
-            "martialite" => {
-                self.martialite.base = (self.martialite.base + modifier).max(0);
-                self.martialite.base
-            },
-            "intendance" => {
-                self.intendance.base = (self.intendance.base + modifier).max(0);
-                self.intendance.base
-            },
-            "erudition" => {
-                self.erudition.base = (self.erudition.base + modifier).max(0);
-                self.erudition.base
-            },
-            "prouesse" => {
-                self.prouesse.base = (self.prouesse.base + modifier).max(0);
-                self.prouesse.base
-            },
-            _ => panic!("erreur incremente_statst, bonus_name = {}",stat_name)
-        };
-
-        if stat_name == "prouesse" {
-            Statistiques::val_prouesse(val).into()
-        } else {
-            Statistiques::val_stats(val).into()
-        }
-
-    }
-
-    fn val_stats(val : i8) -> i8 {
-        match val {
-            0..=4 => 2,
-            5..=8 => 4,
-            9..=12 => 7,
-            13..=16 => 11,
-            17..=100 => 17, // a vérifier sur l'ensemble des valeurs mais flemme (regardé juqu'a 30)
-            _ => 0
-       }
-    } 
-
-    fn val_prouesse(val : i8) -> i8 {
-        match val {
-            0..=4 => 1,
-            5..=8 => 2,
-            9..=12 => 4,
-            13..=16 => 7,
-            17..=100 => 11, // a vérifier sur l'ensemble des valeurs mais flemme (regardé juqu'a 30)
-            _ => 0
-       }
-    } 
-
-    fn calcule_cout_increment(&self, stat_name: &str) -> i16 {
-        let val = match stat_name {
-            "intrigue" => {
-                self.intrigue.base
-            },
-            "diplomatie" => {
-                self.diplomatie.base
-            },
-            "martialite" => {
-                self.martialite.base
-            },
-            "intendance" => {
-                self.intendance.base
-            },
-            "erudition" => {
-                self.erudition.base
-            },
-            "prouesse" => {
-                self.prouesse.base
-            },
-            _ => panic!("erreur calcule_cout_increment, bonus_name = {}",stat_name)
-        };
-
-        if stat_name == "prouesse" {
-            Statistiques::val_prouesse(val+1).into()
-        } else {
-            Statistiques::val_stats(val+1).into()
-        }
-    }
-
-    fn add_bonus_to_stats(&mut self, bonus: Bonus) {
-        match bonus.name.as_str() {
-            "intrigue" => {
-                self.intrigue.bonus += bonus.apttitudes
-            },
-            "diplomatie" => {
-                self.diplomatie.bonus += bonus.apttitudes
-            },
-            "martialite" => {
-                self.martialite.bonus += bonus.apttitudes
-            },
-            "intendance" => {
-                self.intendance.bonus += bonus.apttitudes
-            },
-            "erudition" => {
-                self.erudition.bonus += bonus.apttitudes
-            },
-            "prouesse" => {
-                self.prouesse.bonus += bonus.apttitudes
-            },
-            _ => panic!("erreur personnalité, bonus_name = {}",bonus.name)
-        }
-    }
-}
+const LIMIT_POINTS: i32 = 400;
 
 fn load_data() -> (Vec<Education>, Vec<Personality>) {
     let education_file = File::open(EDUCATION_FILE).unwrap();
@@ -223,47 +22,95 @@ fn load_data() -> (Vec<Education>, Vec<Personality>) {
 }
 
 fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
+    let args = Args::parse();
+
+    dbg!(&args);
     /*
+        @todo
         25 ans = 67 pts
         + 5 stats à 5 pts = 12 pts
         + 6 prouesse à 5 pts
         = 67 + 65 = 133
 
-        oui c'est à améliorer selon les stats, etc...
+        oui c'est à améliorer selon les stats, l'age, etc...
     */
-    let mut points_personnage: i16 = 67 + 65; 
+    // @todo : faire le liste des points de l'age
+    let age: Age;
+    if args.age.is_some() {
+        age = Age(args.age.unwrap());
+    } else {
+        age = Age(25);
+    }
+    let score_age = age.get_score_age();
+    let mut points_personnage: i32 = score_age + 65; 
     let mut statistiques = Statistiques::new();
 
     let educations: Vec<Education> = datas.0;
     let personalities: Vec<Personality> =  datas.1;
 
     /* Education -> ------------------------------------------------------------------------------ */
-
     let education_personnage: Education;
 
-    let percentage = rng.gen_range(0..100);
+    let education_is_some = args.education.is_some();
+    let mut educs_possible: Vec<Education> = educations.clone();
 
-    if percentage >= 0 && percentage < 10 {
-        let very_good_education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level == 5).collect();
-        let educ_index= rng.gen_range(0..very_good_education.len());
-        education_personnage = very_good_education[educ_index].clone();
-    } else if percentage >= 10 && percentage < 90 {
-        
-        let good_education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level >= 3 && educ.level < 5).collect();
-        let educ_index= rng.gen_range(0..good_education.len());
-        education_personnage = good_education[educ_index].clone();
-    } else {
-        let education: Vec<Education> = educations.clone().into_iter().filter(|educ| educ.level < 3).collect();
-        let educ_index= rng.gen_range(0..education.len());
-        education_personnage = education[educ_index].clone();
+    if education_is_some {
+        match args.education.clone().unwrap().as_str() {
+            "diplomatie" | "martialite" | "intrigue" | "intendance" | "erudition" => {
+                let education_choosen = args.education.unwrap();
+                educs_possible = educs_possible.into_iter().filter(|educ| educ.name == education_choosen).collect();
+            },
+            _ => {
+               panic!("Education pas dans la liste")
+            }
+        }
     }
 
-    points_personnage += education_personnage.points as i16;
+    let education_level_is_some = args.level.is_some();
+
+    if education_level_is_some {
+        match args.level.clone().unwrap() {
+            1 | 2 | 3 | 4 | 5 => {
+                let education_level_choosen = args.level.unwrap() as u8;
+                educs_possible = educs_possible.into_iter().filter(|educ| educ.level == education_level_choosen).collect();
+            },
+            _ => {
+               panic!("level pas dans la liste")
+            }
+        }
+    }
+
+    
+    if education_level_is_some || education_is_some {
+        let idx = rng.random_range(0..educs_possible.len());
+        education_personnage = educs_possible[idx].clone();
+    } else {
+        // sinon rien est rentré, donc full random mais avec une certaine chance d'obtenir une bonne éducation
+        let percentage = rng.random_range(0..100);
+
+        if percentage < 10 {
+            let very_good_education: Vec<Education> = educs_possible.into_iter().filter(|educ| educ.level == 5).collect();
+            let educ_index= rng.random_range(0..very_good_education.len());
+            education_personnage = very_good_education[educ_index].clone();
+        } else if percentage < 90 {
+            let good_education: Vec<Education> = educs_possible.into_iter().filter(|educ| educ.level >= 3 && educ.level < 5).collect();
+            let educ_index= rng.random_range(0..good_education.len());
+            education_personnage = good_education[educ_index].clone();
+        } else {
+            let education: Vec<Education> =educs_possible.into_iter().filter(|educ| educ.level < 3).collect();
+            let educ_index= rng.random_range(0..education.len());
+            education_personnage = education[educ_index].clone();
+        }
+    }
+
+    // dbg!(&education_personnage);
+
+    points_personnage += education_personnage.points as i32;
     for bonus in education_personnage.bonus.clone() {
         statistiques.add_bonus_to_stats(bonus);
     }
-    // println!("pts APRES SELECT EDUCATION = {points_personnage}");
+    // dbg!("pts APRES SELECT EDUCATION = {points_personnage}");
 
     /* Personnality -> ------------------------------------------------------------------------------ */
 
@@ -293,32 +140,32 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         }
     }
 
-    // println!("{:?}", personality_bonus);
-    // println!("*************************");
-    // println!("{:?}", personality_neutral);
+    // dbg!(personality_bonus);
+    // dbg!("*************************");
+    // dbg!(personality_neutral);
 
     let mut personnality_personnage: Vec<Personality> = Vec::new();
 
-    // println!("*****BEFORE*****");
-    // println!("personality_bonus : ");
-    // println!("{:?}", personality_bonus);
-    // println!("personality_neutral : ");
-    // println!("{:?}", personality_neutral);
+    // dbg!("*****BEFORE*****");
+    // dbg!("personality_bonus : ");
+    // dbg!("{:?}", personality_bonus);
+    // dbg!("personality_neutral : ");
+    // dbg!("{:?}", personality_neutral);
 
     while personnality_personnage.len() < 3 {
-        let percentage= rng.gen_range(0..100);
+        let percentage= rng.random_range(0..100);
         // 60% de chances d'obtenir une personnalité qui correspond à l'éducation
         if percentage < 60 {
-            let pers_index= rng.gen_range(0..personality_bonus.len());
+            let pers_index= rng.random_range(0..personality_bonus.len());
 
             // voir pour avoir moins souvent le trait ambitieux ?
             // parfois y'a deux trait identiques qui sortent comme si le remove foirais MAIS il foire pas
 
             personnality_personnage.push(personality_bonus[pers_index].clone());
-            points_personnage += personality_bonus[pers_index].points;
+            points_personnage += personality_bonus[pers_index].points as i32;
 
-            // println!("CHOIX : {:?}", personality_bonus[pers_index]);
-            // println!("pers_index : {pers_index}");
+            // dbg!("CHOIX : {:?}", personality_bonus[pers_index]);
+            // dbg!("pers_index : {pers_index}");
 
             let traits_incompatibles = personality_bonus[pers_index].incompatible.clone();
             personality_bonus.remove(pers_index);
@@ -335,10 +182,10 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
                 }
             );
         } else {
-            let pers_index= rng.gen_range(0..personality_neutral.len());
+            let pers_index= rng.random_range(0..personality_neutral.len());
 
             personnality_personnage.push(personality_neutral[pers_index].clone());
-            points_personnage += personality_neutral[pers_index].points;
+            points_personnage += personality_neutral[pers_index].points as i32;
 
             let traits_incompatibles = personality_neutral[pers_index].incompatible.clone();
             personality_neutral.remove(pers_index);
@@ -363,16 +210,16 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
         }
     }
 
-    // println!("*****AFTER*****");
-    // println!("personality_bonus : ");
-    // println!("{:?}", personality_bonus);
-    // println!("personality_neutral : ");
-    // println!("{:?}", personality_neutral);
+    // dbg!("*****AFTER*****");
+    // dbg!("personality_bonus : ");
+    // dbg!("{:?}", personality_bonus);
+    // dbg!("personality_neutral : ");
+    // dbg!("{:?}", personality_neutral);
 
     /* Statistiques -> ------------------------------------------------------------------------------ */
 
-    // println!("INITALIZATION");
-    // println!("{:?}", statistiques);
+    // dbg!("INITALIZATION");
+    // dbg!("{:?}", statistiques);
 
     let stats = [
         "intrigue",
@@ -402,7 +249,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
     while points_personnage <  LIMIT_POINTS {
         
         //10% de base d'obtenir +1 dans l'éducation choisie
-        let percentage = rng.gen_range(0..100);
+        let percentage = rng.random_range(0..100);
 
         let stat_name = if percentage < 10 {
             /*
@@ -410,7 +257,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
             */
 
             if education_personnage.name == "martialite" {
-                if rng.gen_range(0..100) < 80 {
+                if rng.random_range(0..100) < 80 {
                     &education_personnage.name
                 } else {
                     "prouesse"
@@ -420,7 +267,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
             }
 
         } else {
-            let index = rng.gen_range(0..stats_filter.len());
+            let index = rng.random_range(0..stats_filter.len());
             stats_filter[index]
         };
 
@@ -455,6 +302,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
     }
 
     let perso: Personnage = Personnage {
+        age : age,
         education: education_personnage,
         personnality: personnality_personnage,
         statistiques,
@@ -470,6 +318,9 @@ fn main() {
     let datas: (Vec<Education>, Vec<Personality>) = load_data();
 
     let personnage = generate_personnage(datas);
+
+    println!(" *** age ***");
+    println!("age : {}", personnage.age);
 
     println!(" *** education ***");
     println!("education : {}", personnage.education.name);
