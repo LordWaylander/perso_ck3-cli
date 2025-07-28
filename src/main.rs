@@ -38,6 +38,9 @@ fn remove_personnality(traits_incompatibles: Vec<String>, personality_bonus: &mu
 fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage {
     let mut rng = rand::rng();
     let args = Args::parse();
+    let mut statistiques = Statistiques::new();
+    let educations: Vec<Education> = datas.0;
+    let personalities: Vec<Personality> =  datas.1;
 
     // dbg!(&args);
     /*
@@ -54,23 +57,20 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
     if args.age.is_some() {
         age = Age(args.age.unwrap());
     } else {
-        age = Age(25);
+        // un nombre ramdom nan ?
+        age = Age::default();
     }
     let score_age = age.get_score_age();
     let mut points_personnage: i32 = score_age + 65; 
-    let mut statistiques = Statistiques::new();
-
-    let educations: Vec<Education> = datas.0;
-    let personalities: Vec<Personality> =  datas.1;
 
     /* Education -> ------------------------------------------------------------------------------ */
     let education_personnage: Education;
 
     let education_is_some = args.education.is_some();
-    let mut educs_possible: Vec<Education> = educations.clone();
+    let mut educs_possible: Vec<Education> = educations;
 
     if education_is_some {
-        match args.education.clone().unwrap().as_str() {
+        match args.education.as_ref().unwrap().as_str() {
             "diplomatie" | "martialite" | "intrigue" | "intendance" | "erudition" => {
                 let education_choosen = args.education.unwrap();
                 educs_possible = educs_possible.into_iter().filter(|educ| educ.name == education_choosen).collect();
@@ -84,7 +84,7 @@ fn generate_personnage(datas: (Vec<Education>, Vec<Personality>)) -> Personnage 
     let education_level_is_some = args.level.is_some();
 
     if education_level_is_some {
-        match args.level.clone().unwrap() {
+        match args.level.unwrap() {
             1 | 2 | 3 | 4 | 5 => {
                 let education_level_choosen = args.level.unwrap() as u8;
                 educs_possible = educs_possible.into_iter().filter(|educ| educ.level == education_level_choosen).collect();

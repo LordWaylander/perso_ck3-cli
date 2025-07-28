@@ -12,6 +12,7 @@ pub struct Args {
     /// Possible values : [1, 2, 3, 4, 5]
     #[arg(short, long)]
     pub level: Option<i8>,
+    /// @TODO !
     #[arg(short, long)]
     pub age: Option<i8>
 }
@@ -47,8 +48,14 @@ pub struct Personnage {
     pub points_totaux: u16
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Age(pub i8);
+
+impl Default for Age {
+    fn default() -> Self {
+        Age(25)
+    }
+}
 
 impl Age {
     pub fn get_score_age(&self) -> i32 {
