@@ -1,5 +1,4 @@
 use clap::Parser;
-use core::load_data;
 use core::generate_personnage;
 
 use core::structs::*;
@@ -21,7 +20,6 @@ pub struct Args {
 
 fn main() {
     let args = Args::parse();
-    let datas: (Vec<Education>, Vec<Personality>) = load_data();
 
     let params = Parameters {
         education: args.education,
@@ -32,7 +30,7 @@ fn main() {
 
 
 
-    let personnage = generate_personnage(datas, params);
+    let personnage = generate_personnage(params);
 
     println!(" *** age ***");
     println!("age : {}", personnage.age);
