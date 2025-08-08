@@ -13,7 +13,7 @@ pub struct Args {
     /// Possible values : [1, 2, 3, 4, 5]
     #[arg(short, long)]
     pub level: Option<i8>,
-    /// @TODO !
+    /// 0 to 70 years old
     #[arg(short, long)]
     pub age: Option<i8>
 }
@@ -24,7 +24,6 @@ fn main() {
     let params = Parameters {
         education: args.education,
         level: args.level,
-        // @TODO !
         age: args.age
     };
 
