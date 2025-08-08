@@ -4,7 +4,7 @@
 ```
 git clone ck3-cli
 cd ck3-cli
-git clone (ck3-core)[https://github.com/LordWaylander/perso_ck3-core]
+git clone [ck3-core](https://github.com/LordWaylander/perso_ck3-core)
 cargo build --release
 
 ```
@@ -24,8 +24,6 @@ Si pas d'options -> random 100%
 
 
 @todo : 
-- gui
-    note a moi même : "gui" - > [https://ratatui.rs/tutorials/hello-ratatui/](ratatui)
   - select age (calcul ?)
   - points max
   - personalité ?
