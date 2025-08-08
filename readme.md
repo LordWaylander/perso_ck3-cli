@@ -1,5 +1,14 @@
 # générateur de personnage pour CK3
 
+##installation : 
+```
+git clone ck3-cli
+cd ck3-cli
+git clone (ck3-core)[https://github.com/LordWaylander/perso_ck3-core]
+cargo build --release
+
+```
+
 ```
 Usage: ck3-player [OPTIONS]
 
